@@ -48,8 +48,8 @@ var server_local = "./server"
 var requestHandler = function(req, resp) {
 
   console.log("Serving request type " + req.method + " for url " + req.url);
+  
   if(req.method === "GET" && req.headers['datatype']==="JSON" && req.url === "/initial.json"){
-    
     storage.lastTenMessages(function(e,d){
       if (e) {
         resp.writeHead(404); //only applys for file system errors. Fail mode.
@@ -58,9 +58,10 @@ var requestHandler = function(req, resp) {
       }
       resp.writeHead(200,defaultCorsHeaders);
       resp.writeHead(Success_StatusCode,defaultCorsHeaders);
-      resp.end(JSON.stringify(d));
-      return;
-    })
+      return resp.end(JSON.stringify(d));
+      
+    });
+    return;
   }
 
   if(req.method === "POST"){
@@ -75,36 +76,12 @@ var requestHandler = function(req, resp) {
       resp.writeHead(200);
       resp.end(JSON.stringify(newMessage));
     });
+    return;
   }
-
-
-  // if(req.method === "GET" && req.headers['datatype']==="JSON"){
-
-
-  //   fs.readFile(server_local + req.url, function (err,data) {
-
-  //     if (err) {
-  //       resp.writeHead(404); //only applys for file system errors. Fail mode.
-  //       resp.end(JSON.stringify(err));
-  //       return;
-  //     }
-
-  //     resp.writeHead(200,defaultJSONHeaders);
-  //     resp.writeHead(Success_StatusCode,defaultJSONHeaders);
-
-  //     resp.end(data);
-  //   });
-
-  //   return;
-  // }
-
 
   if(req.method === "GET"){
 
-    // console.log("THIS BE URL: ",req.url)
     fs.readFile(client_local + req.url, function (err,data) {
-
-      console.log(client_local + req.url)
       
       if (err) {
         resp.writeHead(404); //only applys for file system errors. Fail mode.
@@ -117,6 +94,7 @@ var requestHandler = function(req, resp) {
 
       resp.end(data);
     });
+    return;
   }
 
 };
@@ -128,11 +106,6 @@ var requestHandler = function(req, resp) {
 //===================================================MODULE BUSINESS=========== DONT MESS WITH ME.
 module.exports = {
   requestHandler: requestHandler,
-
-
-
-
-
 }
 
 

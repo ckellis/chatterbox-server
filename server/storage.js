@@ -28,15 +28,32 @@
     redisClient.lpush("messages",{username:"Cheyyyyennnne",message:"Some arbi message"},function(e,d){
       console.log(e,d);
     });
-
+    redisClient.lpush("messages",{username:"Cheyyyyennnne",message:"Some arbi message"},function(e,d){
+      console.log(e,d);
+    });
+    redisClient.lpush("messages",{username:"Cheyyyyennnne",message:"Some arbi message"},function(e,d){
+      console.log(e,d);
+    });
+    redisClient.lpush("messages",{username:"Cheyyyyennnne",message:"Some arbi message"},function(e,d){
+      console.log(e,d);
+    });
+    redisClient.lpush("messages",{username:"Cheyyyyennnne",message:"Some arbi message"},function(e,d){
+      console.log(e,d);
+    });
+    redisClient.lpush("messages",{username:"Cheyyyyennnne",message:"Some arbi message"},function(e,d){
+      console.log(e,d);
+    });
+    redisClient.lpush("messages",{username:"Cheyyyyennnne",message:"Some arbi message"},function(e,d){
+      console.log(e,d);
+    });
+    
 
   },
 
   lastTenMessages:function(cb){
-    console.log("MESSAGE IN MODULES BEING CALLLLLED",redisClient.lrange("messages",0,10,cb))
     return redisClient.lrange("messages",0,10,cb)
   },
-  
+
   newMessage:function(messageObj){
     redisClient.lpush("messages",messageObj,function(e,d){
       if(e === null){
@@ -44,7 +61,7 @@
       }else{
         return e;
       }
-    })
+    });
   },
 
   userCheck:function(userName){
@@ -63,7 +80,6 @@
     }else{
       this.sadd(userName,"password",password)
     }
-
   },
 
   users:function(){

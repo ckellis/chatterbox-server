@@ -6,56 +6,40 @@ var MessagesView = Backbone.View.extend({
   initialize: function() {
     var self = this;
     this.listenTo(this.collection,"add",this.render)
-    $('input.message').keypress(function (e) {
+    $msgInput=$('input.message');
+    $msgInput.keypress(function (e) {
       if (e.which == 13) {
+        var val = $msgInput.val();
         e.preventDefault();
-        self.onSubmit(e,$("input.message").val());
+        console.log(val)
+        self.onSubmit(e,val);
         $("input.message").val('');
-        return false;    //<---- Add this line
+        return false; 
       }
     });
     this.render();
   },
 
   onSubmit : function(e,msg) {
-    console.log("ON SUBMIT initialized:",{username:session.username, message:msg});
-    
-    var newModel = {username:session.username, message:$("input.message").val()};
-
+    console.log("qqq",msg)
+    var newModel = {username:session.username, message:msg};
     this.collection.create(newModel,{
-    // this.collection.create({username:session.username, message:$("input.message").val()},{
-
       wait : true,    // waits for server to respond with 200 before adding newly created model to collection
-
       success : function(resp){
-          console.log('success callback');
-          console.log(resp);
+        console.log('success callback');
+        console.log(resp);
       },
       error : function(err) {
-          console.log('error callback');
-          // this error message for dev only
-          console.log(err);
+        console.log('error callback');
+        console.log(err);
       }
     });
   },
 
   render: function() {
-
     this.collection.models.map(function(messageObj){
-
       this.$el.append(new MessageView({model:messageObj}).render());
-
     },this);
   }
 
 });
-
-
-
-// events : {"submit" : "onSubmit"},
-// onSubmit : function(e) {
-//   e.preventDefault();
-//   this.model.save({name: this.$("#name").val()}, {
-//     success : function (newModel) { /* Do something here. */ }
-//   });
-// }
