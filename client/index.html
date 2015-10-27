@@ -74,8 +74,7 @@
       window.session = {username:"GENERIC USERNAME"};
 
       function initializeSuccess(e){
-        var resp = (JSON.parse(e));
-        window.initialObjs = resp.map(function(userObj){
+        window.initialObjs = e.map(function(userObj){
           return new Message({username: userObj.username,message:userObj.message})
         });
         window.MessagesCol = new Messages(window.initialObjs);
@@ -83,6 +82,7 @@
       };
 
       function signInSuccess(obj){
+        console.log("THIS BE SIGIN SUCECESSS : ",obj)
         displayMessage(obj)
         var $userinfo = $(".userinfo");
         $userinfo.html('');
@@ -100,10 +100,10 @@
           data: (obj ? JSON.stringify(obj) : ""),
           success:function(e){
             window.session.username = (obj ? obj.username : window.session.username);
-            cb(e);
+            cb(JSON.parse(e));
           },
           error:function(e){
-            displayMessage(e);
+            displayMessage(JSON.parse(e.responseText));
           }
         });
       };
@@ -149,7 +149,8 @@
 
 
       function displayMessage(e){
-        $newDiv = $('<div class="alert alert-danger" role="alert"> \
+        console.log("THIS BE WHAT DISPLAY SEES: ",e)
+        $newDiv = $('<div class="alert alert-'+ e.type +'" role="alert"> \
                       <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> \
                       <span class="sr-only">Error:</span>'
                       + e.msg + 
@@ -261,7 +262,7 @@
           var username = $(".usernameSignIn").val();
           var pwd = $(".passwordSignIn").val();
           if(username === "" || pwd === ""){
-            displayMessage({msg:"Missing necessary fields"});
+            displayMessage({type:"danger",msg:"Missing necessary fields"});
             return false;
           }else{
             return {username:username,pwd:pwd};
@@ -271,11 +272,11 @@
           var pwdInitial = $(".passwordSignUp").val();
           var pwdConfirmation = $(".passwordConfirm").val();
           if(username === "" || pwdConfirmation === "" || pwdInitial ===""){
-            displayMessage({msg:"Missing necessary fields"});
+            displayMessage({type:"danger",msg:"Missing necessary fields"});
             return false;
           }
           if(pwdConfirmation !== pwdInitial){
-            displayMessage({msg:"Passwords do not match"});
+            displayMessage({type:"danger",msg:"Passwords do not match"});
             return false;
           }else{
             return {username:username,pwd1:pwdInitial,pwd2:pwdConfirmation};

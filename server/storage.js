@@ -65,7 +65,9 @@
   },
 
   _userCheck:function(userName){
+    console.log("USER CHECK USERNAME: ",userName)
     redisClient.sismember("users",userName,function(e,d){
+      console.log("IN USERCHEKKKKK",e,d)
       if(d !== 1 || e){
         return false;
       }else{
@@ -77,12 +79,13 @@
   newUser:function(newUserObj){
   // newUser:function(userName,password,password2){
     if(newUserObj.pwd2 !== newUserObj.pwd1){
-      return {type:"error",msg:"Passwords did not match"}
+      return {type:"danger",msg:"Passwords did not match"}
     }
-    if(this._userCheck(newUserObj.userName)){
-      return {type:"error",msg:"Username already exists"};
+    if(this._userCheck(newUserObj.username)){
+      return {type:"danger",msg:"Username already exists"};
     }else{
-      redisClient.sadd(newUserObj.userName,"password", newUserObj.password)
+      redisClient.sadd("users",newUserObj.userName,"password", newUserObj.password)
+      redisClient.sadd("sessions",newUserObj.userName)
       return {type:"success",msg:"User Succesfully Created"}
     }
   },
@@ -92,26 +95,28 @@
       if(e===null){
         return d;
       }else{
-        return e;
+        return {type:"danger",msg:"Something went wrong retreiving the users collection..."};
       }
     });
   },
 
-  login:function(userName,password){
-    if(this._userCheck(userName)){
-      var pwdTest = redisClient.hmget(userName,password)
+  login:function(userObj){
+    console.log("qqqq",userObj.username)
+    console.log("USER CHECK IN LOGIN !!! ",this._userCheck(userObj.username))
+    if(this._userCheck(userObj.username)){
+      var pwdTest = redisClient.hmget(userObj.username,"password")
       if(password===pwdTest){
-        if(redisClient.sismember("sessions",userName)){
-          return {type:"error",msg:"User Already logged in..."}
+        if(redisClient.sismember("sessions",userObj.username)){
+          return {type:"danger",msg:"User Already logged in..."}
         }else{
-          redisClient.sadd("sessions",userName);
+          redisClient.sadd("sessions",userObj.username);
           return {type:"sucess",msg:"User logged in Succesfully"};
         }
       }else{
-        return {type:"error",msg:"Passwords did not match"}
+        return {type:"danger",msg:"Passwords did not match"}
       }
     }else{
-      return {type:"error",msg:"User does not exist"}
+      return {type:"danger",msg:"User does not exist"}
     }
   },
 
@@ -120,7 +125,7 @@
       redisClient.srem("sessions",userName)
       return {type:"success",msg:"User logged out Succesfully"} 
     }else{
-      return {type:"error",msg:"User was not logged in"}
+      return {type:"danger",msg:"User was not logged in"}
     }
   }
 

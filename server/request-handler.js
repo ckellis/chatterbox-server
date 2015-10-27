@@ -74,7 +74,8 @@ var requestHandler = function(req, resp) {
 
     req.on('end', function() {
       var userCreds = JSON.parse(body);
-      var storageResp = storage.login(userCreds.username,userCreds.password);
+      var storageResp = storage.login(userCreds);
+      // var storageResp = storage.login(userCreds.username,userCreds.password);
       if(storageResp.type === "success"){
         resp.writeHead(200);
         resp.end(JSON.stringify(storageResp));
