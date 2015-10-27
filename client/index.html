@@ -1,0 +1,81 @@
+<html>
+  <head>
+   
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+  </head>
+
+  <body>
+  <div class="col-md-3">
+    <div class="jumbotron container-fluid">
+      <div class="input-group">
+        <input placeholder="Username..." type="text" class="form-control username" aria-label="...">
+        <input placeholder="Enter your message... " type="text" class="form-control message" aria-label="...">
+        <div class="input-group-btn">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Room <span class="caret"></span></button>
+          <ul class="dropdown-menu dropdown-menu-right">
+            <li><a href="#">Room</a></li>
+            <li><a href="#">Another Room</a></li>
+            <li><a href="#">Something else here</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#">Separated link</a></li>
+          </ul>
+        </div><!-- /btn-group -->
+      </div>
+    </div>
+  </div>
+    <div class="col-md-6">
+      <div class="jumbotron container-fluid commentList">
+        <ul class="list-group messagesContainer">
+        </ul>
+      </div>
+    </div>
+  </body>
+  <script src="bower_components/underscore/underscore.js"></script>
+  <script src="bower_components/jquery/dist/jquery.js"></script>
+  <script src="bower_components/backbone/backbone.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" crossorigin="anonymous"></script>
+  
+  <script src="scripts/models/Message.js"></script>
+  <script src="scripts/collections/Messages.js"></script>
+  <script src="scripts/views/appView.js"></script>
+  <script src="scripts/views/messagesView.js"></script>
+  <script src="scripts/views/messageView.js"></script>
+
+
+  <script type="text/javascript">
+
+
+
+$(document).ready(function(){
+  window.session={username:"GENERIC USERNAME"};
+
+  var initialObjs=[
+    new Message({username: "Cheyyennnnnnne",message:"Sup Bro!"}),
+    new Message({username: "Cheyyennnnnnne",message:"Sup Bro!"}),
+    new Message({username: "Cheyyennnnnnne",message:"Sup Bro!"})
+  ];
+
+
+  window.MessagesCol = new Messages(initialObjs);
+
+  window.MessagesView = new MessagesView({collection: window.MessagesCol});
+
+  // qq = new AppModel();
+
+  // window.MyAppView = new AppView({model: new App});
+
+  // window.MyApp = new AppView({model: new App()});
+
+  // window.MessagesView = new MessagesView({collection: initialObjs})
+
+
+})
+  
+
+
+
+  </script>
+
+
+
+</html>
