@@ -51,7 +51,7 @@
   },
 
   lastTenMessages:function(cb){
-    return redisClient.lrange("messages",0,10,cb)
+    return redisClient.lrange("messages",0,10,cb).reverse();
   },
 
   newMessage:function(messageObj){
@@ -65,27 +65,21 @@
   },
 
   _userCheck:function(userName){
-    console.log("USER CHECK USERNAME: ",userName)
-    redisClient.sismember("users",userName,function(e,d){
-      console.log("IN USERCHEKKKKK",e,d)
-      if(d !== 1 || e){
-        return false;
-      }else{
-        return true;
-      }
-    });
+
+    return redisClient.sismember("users",userName);
   },
 
   newUser:function(newUserObj){
-  // newUser:function(userName,password,password2){
     if(newUserObj.pwd2 !== newUserObj.pwd1){
       return {type:"danger",msg:"Passwords did not match"}
     }
     if(this._userCheck(newUserObj.username)){
       return {type:"danger",msg:"Username already exists"};
     }else{
-      redisClient.sadd("users",newUserObj.userName,"password", newUserObj.password)
-      redisClient.sadd("sessions",newUserObj.userName)
+
+      redisClient.sadd("users",newUserObj.username) //add user to registered users
+      redisClient.hmset(newUserObj.username,"password", newUserObj.pwd1) //setup user hash containing pwd
+      redisClient.sadd("sessions",newUserObj.username) //log user in.
       return {type:"success",msg:"User Succesfully Created"}
     }
   },
@@ -101,16 +95,15 @@
   },
 
   login:function(userObj){
-    console.log("qqqq",userObj.username)
-    console.log("USER CHECK IN LOGIN !!! ",this._userCheck(userObj.username))
+
     if(this._userCheck(userObj.username)){
-      var pwdTest = redisClient.hmget(userObj.username,"password")
-      if(password===pwdTest){
+      var pwdTest = redisClient.hvals(userObj.username)[0]
+      if(userObj.pwd===pwdTest){
         if(redisClient.sismember("sessions",userObj.username)){
           return {type:"danger",msg:"User Already logged in..."}
         }else{
           redisClient.sadd("sessions",userObj.username);
-          return {type:"sucess",msg:"User logged in Succesfully"};
+          return {type:"success",msg:"User logged in Succesfully"};
         }
       }else{
         return {type:"danger",msg:"Passwords did not match"}
@@ -120,9 +113,9 @@
     }
   },
 
-  logout:function(){
-    if(redisClient.sismember("sessions",userName)){
-      redisClient.srem("sessions",userName)
+  logout:function(userObj){
+    if(redisClient.sismember("sessions",userObj.username)){
+      redisClient.srem("sessions",userObj.username);
       return {type:"success",msg:"User logged out Succesfully"} 
     }else{
       return {type:"danger",msg:"User was not logged in"}

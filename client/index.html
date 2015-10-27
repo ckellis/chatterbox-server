@@ -1,25 +1,33 @@
 <html>
   <head>
-   
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
     <link href="styles/styles.css" rel="stylesheet">
   </head>
 
   <body>
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <img class="theCat" alt="Brand" src="http://files.gamebanana.com/img/ico/sprays/_1317-.gif">
+        </div>
+      </div>
+    </nav>
     <div class="col-md-3 leftCol">
       <div class="jumbotron container-fluid userinfo text-center">
+        <h4 class="usernameDisplay"></h4>
+        <button class="btn btn-sm btn-primary logout" type="submit">Logout</button>
         <h2 class="usersignup">Sign up !</h2>
         <div class="input-group userlogin">
           <input placeholder="Username" type="text" class="form-control usernameSignIn" aria-label="...">
           <input placeholder="Password" type="text" class="form-control passwordSignIn" aria-label="...">
         </div>
-        <hr>
-        <div class="text-center">
+        <div class="text-center sessionBtns">
+          <hr>
           <button class="btn btn-sm btn-primary signin" type="submit">Sign in</button>
           <span>Or...</span>
           <button class="btn btn-sm btn-primary signup" type="submit">Sign up</button>
+          <hr>
         </div>
-        <hr>
         <div class="input-group usersignup text-center">
           <input placeholder="Username" type="text" class="form-control usernameSignUp" aria-label="...">
           <hr>
@@ -27,8 +35,6 @@
           <input placeholder="Confirm password..." type="text" class="form-control passwordConfirm" aria-label="...">
         </div>
         <h2 class="userlogin">Sign In !</h2>
-
-        <!-- <button class="btn btn-sm btn-primary" type="submit">Sign in</button> -->
       </div>
     </div>
     <div class="col-md-6">
@@ -63,229 +69,16 @@
   <script src="bower_components/backbone/backbone.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" crossorigin="anonymous"></script>
   
+  <script src="scripts/widgets/signUp.js"></script>
   <script src="scripts/models/Message.js"></script>
   <script src="scripts/collections/Messages.js"></script>
   <script src="scripts/views/appView.js"></script>
   <script src="scripts/views/messagesView.js"></script>
   <script src="scripts/views/messageView.js"></script>
-  <script type="text/javascript">
 
-    $(document).ready(function(){
-      window.session = {username:"GENERIC USERNAME"};
 
-      function initializeSuccess(e){
-        window.initialObjs = e.map(function(userObj){
-          return new Message({username: userObj.username,message:userObj.message})
-        });
-        window.MessagesCol = new Messages(window.initialObjs);
-        window.MessagesView = new MessagesView({collection: window.MessagesCol});
-      };
 
-      function signInSuccess(obj){
-        console.log("THIS BE SIGIN SUCECESSS : ",obj)
-        displayMessage(obj)
-        var $userinfo = $(".userinfo");
-        $userinfo.html('');
-        $userinfo.html('<h4>'+window.session.username+'</h4>');
-        // $userinfo.html('<h4>'+obj.msg+'</h4><small>'+ window.session.username +'</small>');
-      };
 
-      function ajaxCall(obj,cb,url,type){
-        $.ajax({
-          url:url,
-          type: type || "GET",
-          // url:"http://localhost:3000/initial.json",
-          headers: {"datatype": "JSON"},
-          crossDomain: true,
-          data: (obj ? JSON.stringify(obj) : ""),
-          success:function(e){
-            window.session.username = (obj ? obj.username : window.session.username);
-            cb(JSON.parse(e));
-          },
-          error:function(e){
-            displayMessage(JSON.parse(e.responseText));
-          }
-        });
-      };
-
-      ajaxCall(null, initializeSuccess,"http://localhost:3000/initial.json");
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      function displayMessage(e){
-        console.log("THIS BE WHAT DISPLAY SEES: ",e)
-        $newDiv = $('<div class="alert alert-'+ e.type +'" role="alert"> \
-                      <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> \
-                      <span class="sr-only">Error:</span>'
-                      + e.msg + 
-                    '</div>');
-        $(".leftCol").append($newDiv);
-        $newDiv.fadeOut(3000);
-      }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      function ToggleSignUp(){
-        this.mode = true;
-
-
-        this.toggle = function(){
-          if(this.mode){
-            this.mode = !this.mode;
-            $( ".usersignup" ).show( "blind", function() {
-              // Animation complete.
-            });
-            $( ".userlogin" ).hide("blind", function() {
-              // Animation complete.
-            });          
-          }else{
-            this.mode = !this.mode;
-            $( ".usersignup" ).hide( "blind", function() {
-              // Animation complete.
-            });
-            $( ".userlogin" ).show( "blind", function() {
-              // Animation complete.
-            }); 
-          }          
-        }
-        $( ".signup" ).click(function() {
-          if(!this.mode){
-            var signUpObj = signupChk(false) //can be false, or an obj containing the credentials.
-            if(signUpObj){ //toggles signup or singin mode for the check fxn
-              ajaxCall(signUpObj,signInSuccess,"http://localhost:3000/signup","POST");
-            }
-          }else{
-            this.toggle();  
-          }       
-        }.bind(this));
-
-        $( ".signin" ).click(function() {
-          if(this.mode){
-            var signUpObj = signupChk(true) //can be false, or an obj containing the credentials.
-            if(signUpObj){ //toggles signup or singin mode for the check fxn
-              ajaxCall(signUpObj,signInSuccess,"http://localhost:3000/signin","POST");
-            }
-          }else{
-            this.toggle();  
-          }     
-        }.bind(this));
-      };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      var signupToggle = new ToggleSignUp();
-      
-      function signupChk(signin){
-        if(signin){
-          var username = $(".usernameSignIn").val();
-          var pwd = $(".passwordSignIn").val();
-          if(username === "" || pwd === ""){
-            displayMessage({type:"danger",msg:"Missing necessary fields"});
-            return false;
-          }else{
-            return {username:username,pwd:pwd};
-          }
-        }else{
-          var username = $(".usernameSignUp").val();
-          var pwdInitial = $(".passwordSignUp").val();
-          var pwdConfirmation = $(".passwordConfirm").val();
-          if(username === "" || pwdConfirmation === "" || pwdInitial ===""){
-            displayMessage({type:"danger",msg:"Missing necessary fields"});
-            return false;
-          }
-          if(pwdConfirmation !== pwdInitial){
-            displayMessage({type:"danger",msg:"Passwords do not match"});
-            return false;
-          }else{
-            return {username:username,pwd1:pwdInitial,pwd2:pwdConfirmation};
-          }
-        }
-      }
-    });
-
-  </script>
 
 
 </html>

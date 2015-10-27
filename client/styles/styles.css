@@ -1,5 +1,15 @@
 .usersignup{
-    display: none;
-
-
+  display: none;
+}
+.logout{
+  display: none;
+}
+.usernameDisplay{
+  display: none;
+}
+.userMessageItem{
+  text-align: right;
+}
+.theCat{
+  height:10%;
 }

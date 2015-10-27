@@ -37,7 +37,7 @@ var MessagesView = Backbone.View.extend({
   render: function() {
     this.$el.children().remove();
     this.collection.models.map(function(messageObj){
-      this.$el.append(new MessageView({model:messageObj}).render());
+      this.$el.prepend(new MessageView({model:messageObj}).render());
     },this);
   }
 
