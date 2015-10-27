@@ -39,8 +39,8 @@ var headers = defaultCorsHeaders;
 
 // headers['Content-Type'] = "application/json";
 
-var client_local = "./client"
-var server_local = "./server"
+var client_local = "./client";
+var server_local = "./server";
 
 
 
@@ -55,11 +55,57 @@ var requestHandler = function(req, resp) {
         resp.writeHead(404); //only applys for file system errors. Fail mode.
         resp.end(JSON.stringify(e));
         return;
+      }else{
+
+        resp.writeHead(200,defaultCorsHeaders);
+        resp.writeHead(Success_StatusCode,defaultCorsHeaders);
+        return resp.end(JSON.stringify(d));
+        
       }
-      resp.writeHead(200,defaultCorsHeaders);
-      resp.writeHead(Success_StatusCode,defaultCorsHeaders);
-      return resp.end(JSON.stringify(d));
-      
+    });
+    return;
+  }
+
+  if(req.method === "POST" && req.url === '/signin'){
+    var body = '';
+    req.on('data', function(chunk) {
+      body += chunk;
+    });
+
+    req.on('end', function() {
+      var userCreds = JSON.parse(body);
+      var storageResp = storage.login(userCreds.username,userCreds.password);
+      if(storageResp.type === "success"){
+        resp.writeHead(200);
+        resp.end(JSON.stringify(storageResp));
+      }else{
+        resp.writeHead(400);
+        resp.end(JSON.stringify(storageResp));
+      }
+    });
+    return;
+  }
+
+  if(req.method === "POST" && req.url === '/signup'){
+    var body = '';
+    req.on('data', function(chunk) {
+      body += chunk;
+    });
+
+    req.on('end', function() {
+      var userCreds = JSON.parse(body);
+      console.log("USER CREDS: ",userCreds);
+
+      var storageResp = storage.newUser(userCreds);
+      console.log("RESP : ",storageResp)
+
+      if(storageResp.type === "success"){
+        resp.writeHead(200);
+        resp.end(JSON.stringify(storageResp));
+      }else{
+        resp.writeHead(400);
+        resp.end(JSON.stringify(storageResp));
+      }
     });
     return;
   }
@@ -80,6 +126,7 @@ var requestHandler = function(req, resp) {
   }
 
   if(req.method === "GET"){
+    console.log(client_local + req.url)
 
     fs.readFile(client_local + req.url, function (err,data) {
       

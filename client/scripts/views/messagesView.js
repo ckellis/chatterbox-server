@@ -11,7 +11,6 @@ var MessagesView = Backbone.View.extend({
       if (e.which == 13) {
         var val = $msgInput.val();
         e.preventDefault();
-        console.log(val)
         self.onSubmit(e,val);
         $("input.message").val('');
         return false; 
@@ -21,7 +20,6 @@ var MessagesView = Backbone.View.extend({
   },
 
   onSubmit : function(e,msg) {
-    console.log("qqq",msg)
     var newModel = {username:session.username, message:msg};
     this.collection.create(newModel,{
       wait : true,    // waits for server to respond with 200 before adding newly created model to collection
@@ -37,6 +35,7 @@ var MessagesView = Backbone.View.extend({
   },
 
   render: function() {
+    this.$el.children().remove();
     this.collection.models.map(function(messageObj){
       this.$el.append(new MessageView({model:messageObj}).render());
     },this);

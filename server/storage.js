@@ -57,14 +57,14 @@
   newMessage:function(messageObj){
     redisClient.lpush("messages",messageObj,function(e,d){
       if(e === null){
-        return "User Added Succesfully";
+        return {msg:"User Added Succesfully"};
       }else{
         return e;
       }
     });
   },
 
-  userCheck:function(userName){
+  _userCheck:function(userName){
     redisClient.sismember("users",userName,function(e,d){
       if(d !== 1 || e){
         return false;
@@ -74,11 +74,16 @@
     });
   },
 
-  newUser:function(userName,password){
-    if(this.userCheck(userName)){
-      return "User Already Exists..."
+  newUser:function(newUserObj){
+  // newUser:function(userName,password,password2){
+    if(newUserObj.pwd2 !== newUserObj.pwd1){
+      return {type:"error",msg:"Passwords did not match"}
+    }
+    if(this._userCheck(newUserObj.userName)){
+      return {type:"error",msg:"Username already exists"};
     }else{
-      this.sadd(userName,"password",password)
+      redisClient.sadd(newUserObj.userName,"password", newUserObj.password)
+      return {type:"success",msg:"User Succesfully Created"}
     }
   },
 
@@ -93,21 +98,29 @@
   },
 
   login:function(userName,password){
-    var pwdTest = redisClient.hmget(userName,password)
-    if(password===pwdTest){
-      if(redisClient.sismember("sessions",userName)){
-        return "User Already logged in..."
+    if(this._userCheck(userName)){
+      var pwdTest = redisClient.hmget(userName,password)
+      if(password===pwdTest){
+        if(redisClient.sismember("sessions",userName)){
+          return {type:"error",msg:"User Already logged in..."}
+        }else{
+          redisClient.sadd("sessions",userName);
+          return {type:"sucess",msg:"User logged in Succesfully"};
+        }
       }else{
-        return redisClient.sadd("sessions",userName);
+        return {type:"error",msg:"Passwords did not match"}
       }
+    }else{
+      return {type:"error",msg:"User does not exist"}
     }
   },
 
   logout:function(){
     if(redisClient.sismember("sessions",userName)){
-      return redisClient.srem("sessions",userName)
+      redisClient.srem("sessions",userName)
+      return {type:"success",msg:"User logged out Succesfully"} 
     }else{
-      return "User was not logged in..."
+      return {type:"error",msg:"User was not logged in"}
     }
   }
 
