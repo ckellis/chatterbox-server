@@ -13,20 +13,29 @@ this file and include it in basic-server.js so that it actually works.
 **************************************************************/
 var fs = require('fs');
 var url = require('url');
+var storage = require('./storage.js');
+storage.initialize();
 
 var Success_StatusCode = 200; //Shouldnt be set staticly..
 var defaultCorsHeaders = {
-  "access-control-allow-origin": "*",
+  'Access-Control-Allow-Origin': "*",
   "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
   "access-control-allow-headers": "content-type, accept",
-  "access-control-max-age": 10 // Seconds.
+  "access-control-max-age": 10, // Seconds.
+  'Content-Type':"text/html"
+};
+
+var defaultJSONHeaders = {
+  'Access-Control-Allow-Origin': "*",
+  "access-control-allow-methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "access-control-allow-headers": "*",
+  // "access-control-allow-headers": "content-type, accept",
+  "access-control-max-age": 10,
+  'Content-Type':"application/json" // Seconds.
 };
 
 // See the note below about CORS headers.
 var headers = defaultCorsHeaders;
-headers['Content-Type'] = "text/html";
-
-
 
 // headers['Content-Type'] = "application/json";
 
@@ -34,53 +43,65 @@ var client_local = "./client"
 var server_local = "./server"
 
 
-var messages = []; //last ten messages
-// var messages = [{"username":"Cheyyennnnnnne","message":"Sup Bro!"},{"username":"Cheyyennnnnnne","message":"Sup Bro!"},{"username":"Cheyyennnnnnne","message":"Sup Bro!"}]; //temporary - will switch to using redis
 
 
 var requestHandler = function(req, resp) {
 
   console.log("Serving request type " + req.method + " for url " + req.url);
+  if(req.method === "GET" && req.headers['datatype']==="JSON" && req.url === "/initial.json"){
+    
+    storage.lastTenMessages(function(e,d){
+      if (e) {
+        resp.writeHead(404); //only applys for file system errors. Fail mode.
+        resp.end(JSON.stringify(e));
+        return;
+      }
+      resp.writeHead(200,defaultCorsHeaders);
+      resp.writeHead(Success_StatusCode,defaultCorsHeaders);
+      resp.end(JSON.stringify(d));
+      return;
+    })
+  }
 
   if(req.method === "POST"){
-    // var newObj = JSON.parse(req)
     var body = '';
     req.on('data', function(chunk) {
       body += chunk;
     });
 
     req.on('end', function() {
-      newMessage = JSON.parse(body)
-      messages.push(newMessage)
+      newMessage = JSON.parse(body);
+      storage.newMessage(newMessage); 
       resp.writeHead(200);
-      resp.end(JSON.stringify(messages));
+      resp.end(JSON.stringify(newMessage));
     });
   }
 
 
+  // if(req.method === "GET" && req.headers['datatype']==="JSON"){
 
-  if(req.method === "GET" && req.headers['datatype']==="JSON"){
-    fs.readFile(server_local + req.url, function (err,data) {
 
-      if (err) {
-        resp.writeHead(404); //only applys for file system errors. Fail mode.
-        resp.end(JSON.stringify(err));
-        return;
-      }
+  //   fs.readFile(server_local + req.url, function (err,data) {
 
-      resp.writeHead(200,headers);
-      resp.writeHead(Success_StatusCode,headers);
+  //     if (err) {
+  //       resp.writeHead(404); //only applys for file system errors. Fail mode.
+  //       resp.end(JSON.stringify(err));
+  //       return;
+  //     }
 
-      resp.end(data);
-    });
+  //     resp.writeHead(200,defaultJSONHeaders);
+  //     resp.writeHead(Success_StatusCode,defaultJSONHeaders);
 
-    return;
-    //respond with JSON
-  }
+  //     resp.end(data);
+  //   });
+
+  //   return;
+  // }
 
 
   if(req.method === "GET"){
-    // console.log("THIS BE HEADERS: ",req.headers)
+
+    // console.log("THIS BE URL: ",req.url)
     fs.readFile(client_local + req.url, function (err,data) {
 
       console.log(client_local + req.url)

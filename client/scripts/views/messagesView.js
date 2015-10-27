@@ -19,7 +19,9 @@ var MessagesView = Backbone.View.extend({
 
   onSubmit : function(e,msg) {
     console.log("ON SUBMIT initialized:",{username:session.username, message:msg});
+    
     var newModel = {username:session.username, message:$("input.message").val()};
+
     this.collection.create(newModel,{
     // this.collection.create({username:session.username, message:$("input.message").val()},{
 

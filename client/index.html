@@ -49,16 +49,23 @@
 $(document).ready(function(){
   window.session={username:"GENERIC USERNAME"};
 
-  var initialObjs=[
-    new Message({username: "Cheyyennnnnnne",message:"Sup Bro!"}),
-    new Message({username: "Cheyyennnnnnne",message:"Sup Bro!"}),
-    new Message({username: "Cheyyennnnnnne",message:"Sup Bro!"})
-  ];
+  $.ajax({
+    url:"http://localhost:3000/initial.json",
+    headers: {"datatype": "JSON"},
+    crossDomain: true,
+    success:function(e){
+      var resp = (JSON.parse(e));
+      window.initialObjs = resp.map(function(userObj){
+        return new Message({username: userObj.username,message:userObj.message})
+      });
+      window.MessagesCol = new Messages(window.initialObjs);
+      window.MessagesView = new MessagesView({collection: window.MessagesCol});
+    },
+    error:function(e){
+      console.log("FAILURE: ",e)
 
-
-  window.MessagesCol = new Messages(initialObjs);
-
-  window.MessagesView = new MessagesView({collection: window.MessagesCol});
+    }
+  });
 
   // qq = new AppModel();
 
